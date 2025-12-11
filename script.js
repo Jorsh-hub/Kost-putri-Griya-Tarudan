@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const dateEnc = encodeURIComponent(formattedDate);
             const messageEnc = encodeURIComponent(message);
 
-            const finalMsg = `Halo Kak Admin Griya,%0A` +
+            const finalMsg = `Halo Kak Admin Griya Tarudan,%0A` +
                              `Aku mau reservasi dongg.%0A%0A` +
                              `Nama: ${nameEnc}%0A` +
                              `No. WA: ${whatsappEnc}%0A` +
