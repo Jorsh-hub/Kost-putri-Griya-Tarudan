@@ -246,49 +246,53 @@ document.addEventListener('DOMContentLoaded', () => {
     const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTa1DSfok0DIkrJrlIBolUJPhhwgJeUbTYL9aennzzWlKYYGLp8uaOSfuyEhcUbmoAEQyDsnI3tDDbi/pub?output=csv'; 
 
     function updateRoomStatus() {
-        if (sheetURL === '' || sheetURL.includes('LINK_GOOGLE_SHEET')) {
-            console.log('Link Google Sheet belum diisi di script.js');
-            return;
-        }
+        console.log("Mencoba mengambil data dari Google Sheet..."); // Cek di Console
 
-        fetch(sheetURL)
+        // Tambahkan timestamp (?t=...) agar browser tidak menyimpan cache lama
+        fetch(sheetURL + '&t=' + new Date().getTime())
             .then(response => response.text())
             .then(csvText => {
-                // Parsing CSV
+                console.log("Data berhasil diambil!"); // Cek di Console
+                
                 const rows = csvText.split('\n').map(row => row.split(','));
                 
-                // Loop mulai dari index 1 (melewati header)
                 rows.slice(1).forEach(row => {
-                    // Validasi baris data
                     if(row.length < 2) return;
 
-                    const idKamar = row[0]?.trim(); // Kolom A (id_kamar)
-                    const status = row[1]?.trim();  // Kolom B (status)
+                    // AMBIL DATA DARI EXCEL
+                    let idKamar = row[0]?.trim(); 
+                    let status = row[1]?.trim();  
 
-                    // Cari elemen HTML yang sesuai ID-nya (status-tipe-a atau status-tipe-b)
+                    // --- JURUS PAMUNGKAS: PEMBERSIH ID ---
+                    // Ubah 'tipe_a' (Excel) menjadi 'tipe-a' (HTML) secara otomatis
+                    // Ubah huruf besar jadi kecil semua biar aman
+                    idKamar = idKamar.replace(/_/g, '-').toLowerCase(); 
+                    
+                    console.log(`Cek Kamar: ${idKamar} Status: ${status}`); // Intip datanya
+
+                    // Cari elemen di HTML: status-tipe-a
                     const element = document.getElementById(`status-${idKamar}`);
 
                     if (element) {
-                        // Hapus class warna lama
+                        // Reset Warna
                         element.classList.remove('bg-green-500/90', 'bg-red-600/90');
 
-                        // Cek Status (Harus Sama Persis dengan di Google Sheet: "Full" atau "Available")
-                        if (status === 'Full') {
-                            // Jika Penuh
+                        // Cek Status (Huruf besar/kecil tidak masalah sekarang)
+                        if (status.toLowerCase() === 'full') {
                             element.classList.add('bg-red-600/90');
                             element.innerText = 'Sudah Penuh';
                         } else {
-                            // Jika Available (atau status lain selain Full)
                             element.classList.add('bg-green-500/90');
                             element.innerText = 'Available';
                         }
+                    } else {
+                        console.warn(`Elemen HTML untuk ID 'status-${idKamar}' tidak ditemukan!`);
                     }
                 });
             })
             .catch(error => console.error('Gagal mengambil data status:', error));
     }
 
-    // Jalankan fungsi update status
+    // Jalankan fungsi
     updateRoomStatus();
 
-});
