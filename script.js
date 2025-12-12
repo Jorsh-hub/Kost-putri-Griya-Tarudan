@@ -7,7 +7,7 @@ if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.match
 
 document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
-    // 1. UI & NAVIGATION (Supaya Layout Rapi)
+    // 1. UI & NAVIGATION (Supaya Layout Rapi & Tidak Rusak)
     // ==========================================
     const navLinks = document.querySelectorAll('.nav-link');
     const pages = document.querySelectorAll('.page');
@@ -117,6 +117,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    document.addEventListener('click', (e) => {
+        if (menuMobile && !menuMobile.classList.contains('hidden')) {
+            if (!menuMobile.contains(e.target) && !menuToggle.contains(e.target)) {
+                menuMobile.classList.add('hidden');
+            }
+        }
+    });
+
     // ==========================================
     // 2. FORM WA & JAM
     // ==========================================
@@ -222,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if(!idKamar || !status) return;
 
                     // --- JURUS PAMUNGKAS ---
-                    // 1. Ubah _ jadi - (tipe_a -> tipe-a)
+                    // 1. Ubah _ jadi - (tipe_a -> tipe-a) supaya cocok sama HTML
                     // 2. Ubah jadi huruf kecil semua
                     idKamar = idKamar.replace(/_/g, '-').toLowerCase(); 
                     
