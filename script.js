@@ -240,4 +240,55 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateRealTimeClock();
     setInterval(updateRealTimeClock, 1000);
+
+    //  FITUR STATUS KAMAR DARI GOOGLE SHEET (DATABASE)
+    
+    const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTa1DSfok0DIkrJrlIBolUJPhhwgJeUbTYL9aennzzWlKYYGLp8uaOSfuyEhcUbmoAEQyDsnI3tDDbi/pub?output=csv'; 
+
+    function updateRoomStatus() {
+        if (sheetURL === '' || sheetURL.includes('LINK_GOOGLE_SHEET')) {
+            console.log('Link Google Sheet belum diisi di script.js');
+            return;
+        }
+
+        fetch(sheetURL)
+            .then(response => response.text())
+            .then(csvText => {
+                // Parsing CSV
+                const rows = csvText.split('\n').map(row => row.split(','));
+                
+                // Loop mulai dari index 1 (melewati header)
+                rows.slice(1).forEach(row => {
+                    // Validasi baris data
+                    if(row.length < 2) return;
+
+                    const idKamar = row[0]?.trim(); // Kolom A (id_kamar)
+                    const status = row[1]?.trim();  // Kolom B (status)
+
+                    // Cari elemen HTML yang sesuai ID-nya (status-tipe-a atau status-tipe-b)
+                    const element = document.getElementById(`status-${idKamar}`);
+
+                    if (element) {
+                        // Hapus class warna lama
+                        element.classList.remove('bg-green-500/90', 'bg-red-600/90');
+
+                        // Cek Status (Harus Sama Persis dengan di Google Sheet: "Full" atau "Available")
+                        if (status === 'Full') {
+                            // Jika Penuh
+                            element.classList.add('bg-red-600/90');
+                            element.innerText = 'Sudah Penuh';
+                        } else {
+                            // Jika Available (atau status lain selain Full)
+                            element.classList.add('bg-green-500/90');
+                            element.innerText = 'Available';
+                        }
+                    }
+                });
+            })
+            .catch(error => console.error('Gagal mengambil data status:', error));
+    }
+
+    // Jalankan fungsi update status
+    updateRoomStatus();
+
 });
