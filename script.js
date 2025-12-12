@@ -6,7 +6,7 @@ if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.match
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // === BAGIAN UI & NAVIGASI ===
+    // UI & Navigation References
     const navLinks = document.querySelectorAll('.nav-link');
     const pages = document.querySelectorAll('.page');
     const menuToggle = document.getElementById('menu-toggle');
@@ -15,18 +15,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctaMobile = document.getElementById('cta-button-mobile');
     const header = document.getElementById('main-header');
     
-    // Dark Mode Toggle
+    // Dark Mode Toggle Handler
     const themeToggleBtn = document.getElementById('theme-toggle');
     const iconSun = document.getElementById('icon-sun');
     const iconMoon = document.getElementById('icon-moon');
 
     function updateThemeIcons() {
         if (document.documentElement.classList.contains('dark')) {
-            if(iconSun) iconSun.classList.remove('hidden');
-            if(iconMoon) iconMoon.classList.add('hidden');
+            iconSun.classList.remove('hidden');
+            iconMoon.classList.add('hidden');
         } else {
-            if(iconSun) iconSun.classList.add('hidden');
-            if(iconMoon) iconMoon.classList.remove('hidden');
+            iconSun.classList.add('hidden');
+            iconMoon.classList.remove('hidden');
         }
     }
     updateThemeIcons();
@@ -43,9 +43,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Navbar Scroll
+    // Navbar Scroll Effect 
     let ticking = false;
-    window.addEventListener('scroll', () => {
+    const handleScroll = () => {
         if (!ticking) {
             window.requestAnimationFrame(() => {
                 if (window.scrollY > 10) {
@@ -57,9 +57,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             ticking = true;
         }
-    });
+    };
+    window.addEventListener('scroll', handleScroll);
 
-    // Scroll Reveal
+    // Scroll Reveal Animation 
     const observerOptions = { threshold: 0.1, rootMargin: "0px 0px -50px 0px" };
     const revealOnScroll = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
@@ -74,19 +75,22 @@ document.addEventListener('DOMContentLoaded', () => {
         revealOnScroll.observe(el);
     });
 
-    // Navigation Logic
+    // Navigation Logic (Single Page Application Feel) 
     function showPage(targetId) {
         pages.forEach(page => { page.classList.remove('active'); });
         window.scrollTo(0, 0);
+        
         const targetPage = document.getElementById(targetId);
         if (targetPage) {
             targetPage.classList.add('active');
+
             setTimeout(() => {
                 targetPage.querySelectorAll('.reveal-up, .reveal-in').forEach(el => {
                     revealOnScroll.observe(el);
                 });
             }, 50);
         }
+
         if (ctaDesktop && ctaMobile) {
             if (targetId === 'page-home') {
                 ctaDesktop.classList.add('hidden');
@@ -96,7 +100,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 ctaMobile.classList.remove('hidden');
             }
         }
-        if (menuMobile) menuMobile.classList.add('hidden');
+
+        if (menuMobile && !menuMobile.classList.contains('hidden')) {
+            menuMobile.classList.add('hidden');
+        }
     }
 
     navLinks.forEach(link => {
@@ -107,13 +114,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Mobile Menu Toggle 
     if (menuToggle && menuMobile) {
         menuToggle.addEventListener('click', () => {
             menuMobile.classList.toggle('hidden');
         });
     }
 
-    // === BAGIAN FORM WA & JAM ===
+    document.addEventListener('click', (e) => {
+        if (menuMobile && !menuMobile.classList.contains('hidden')) {
+            if (!menuMobile.contains(e.target) && !menuToggle.contains(e.target)) {
+                menuMobile.classList.add('hidden');
+            }
+        }
+    });
+
+    // Inisialisasi status tombol CTA
+    if (ctaDesktop) ctaDesktop.classList.add('hidden');
+    if (ctaMobile) ctaMobile.classList.add('hidden');
+
+    // Form Booking Logic (WhatsApp) 
     const submitButton = document.getElementById('submit-booking-form');
     const formError = document.getElementById('form-error');
     const roomSelect = document.getElementById('room_type');
@@ -122,11 +142,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const dateInput = document.getElementById('checkin_date');
     const adminWA = '6282146152529'; 
 
+    // Set tanggal minimal hari ini
     if (dateInput) {
         const today = new Date().toISOString().split('T')[0];
         dateInput.setAttribute('min', today);
     }
 
+    // Tampilkan estimasi harga saat pilih kamar
     if (roomSelect) {
         roomSelect.addEventListener('change', function() {
             const selectedOption = this.options[this.selectedIndex];
@@ -141,125 +163,81 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Handle Submit Form
     if (submitButton && formError) {
         submitButton.addEventListener('click', (e) => {
             e.preventDefault();
             formError.classList.add('hidden');
+            formError.textContent = '';
+
             const name = document.getElementById('name').value.trim();
             const whatsapp = document.getElementById('whatsapp').value.trim();
             const roomType = document.getElementById('room_type').value;
             const checkinDate = document.getElementById('checkin_date').value;
             const message = document.getElementById('message').value.trim();
 
-            if (!name || name.length < 3) { showError('Nama wajib diisi minimal 3 huruf.'); return; }
-            if (!whatsapp || !/^08[0-9]{8,13}$/.test(whatsapp)) { showError('Nomor WA tidak valid.'); return; }
-            if (!roomType) { showError('Pilih tipe kamar dulu.'); return; }
-            if (!checkinDate) { showError('Pilih tanggal check-in.'); return; }
+            // Validasi 
+            if (!name) { showError('Form nya belom kakak isi nihh.'); return; }
+            if (name.length < 3) { showError('Nama Kakak kependekan nih, minimal 3 huruf ya.'); return; }
 
+            const phoneRegex = /^08[0-9]{8,13}$/;
+            if (!whatsapp) { showError('Nomor WA-nya jangan lupa diisi ya Kak.'); return; }
+            if (!phoneRegex.test(whatsapp)) { showError('Nomor WA harus diawali 08 dan minimal 10 digit ya Kak.'); return; }
+
+            if (!roomType) { showError('Pilih tipe kamar yang Kakak mau dulu ya.'); return; }
+            if (!checkinDate) { showError('Kapan rencana Kakak mau mulai ngekos? Isi tanggalnya ya.'); return; }
+            if (!message) { showError('Pesannya diisi dulu ya Kak, misal: mau booking atau tanya info.'); return; }
+
+            // Format Pesan WA
             const dateObj = new Date(checkinDate);
             const formattedDate = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-            
+
+            const nameEnc = encodeURIComponent(name);
+            const whatsappEnc = encodeURIComponent(whatsapp);
+            const roomTypeEnc = encodeURIComponent(roomType);
+            const dateEnc = encodeURIComponent(formattedDate);
+            const messageEnc = encodeURIComponent(message);
+
             const finalMsg = `Halo Kak Admin Griya Tarudan,%0A` +
                              `Aku mau reservasi dongg.%0A%0A` +
-                             `Nama: ${encodeURIComponent(name)}%0A` +
-                             `No. WA: ${encodeURIComponent(whatsapp)}%0A` +
-                             `Tipe Kamar: ${encodeURIComponent(roomType)}%0A` +
-                             `Rencana Check-in: ${encodeURIComponent(formattedDate)}%0A` +
-                             `Catatan: ${encodeURIComponent(message)}`;
+                             `Nama: ${nameEnc}%0A` +
+                             `No. WA: ${whatsappEnc}%0A` +
+                             `Tipe Kamar: ${roomTypeEnc}%0A` +
+                             `Rencana Check-in: ${dateEnc}%0A` +
+                             `Catatan: ${messageEnc}`;
             
             const waURL = `https://wa.me/${adminWA}?text=${finalMsg}`;
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+            // Buka WhatsApp
             if (isMobile) { window.location.href = waURL; } else { window.open(waURL, '_blank'); }
         });
     }
 
     function showError(msg) {
-        if(formError) {
-            formError.textContent = msg;
-            formError.classList.remove('hidden');
-        }
+        formError.textContent = msg;
+        formError.classList.remove('hidden');
+        // Efek getar tombol
+        submitButton.classList.add('translate-x-1');
+        setTimeout(() => submitButton.classList.remove('translate-x-1'), 100);
     }
 
+    // FITUR JAM REAL-TIME (WIB)
     function updateRealTimeClock() {
         const desktopClock = document.getElementById('clock-desktop');
         const mobileClock = document.getElementById('clock-mobile');
+        
         const now = new Date();
-        const timeString = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' WIB';
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        
+        const timeString = `${hours}:${minutes}:${seconds} WIB`;
+        
         if (desktopClock) desktopClock.innerText = timeString;
         if (mobileClock) mobileClock.innerText = timeString;
     }
-    setInterval(updateRealTimeClock, 1000);
+
     updateRealTimeClock();
-
-    // ==========================================
-    // 3. FITUR STATUS KAMAR (VERSI DETEKTIF / DEBUG)
-    // ==========================================
-    
-    const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTa1DSfok0DIkrJrlIBolUJPhhwgJeUbTYL9aennzzWlKYYGLp8uaOSfuyEhcUbmoAEQyDsnI3tDDbi/pub?output=csv'; 
-
-    function updateRoomStatus() {
-        // console.log("Detektif mulai bekerja..."); // Cek Console
-        
-        fetch(sheetURL + '&t=' + new Date().getTime())
-            .then(response => {
-                if (!response.ok) {
-                    alert("⚠️ GAGAL KONEKSI KE GOOGLE SHEET!\nCek internet atau linknya.");
-                    throw new Error('Network error');
-                }
-                return response.text();
-            })
-            .then(csvText => {
-                const rows = csvText.split('\n').map(row => row.split(','));
-                
-                // Variabel untuk menampung laporan
-                let laporan = "🔍 LAPORAN DETEKTIF:\n";
-                let adaUpdate = false;
-
-                rows.slice(1).forEach(row => {
-                    if(row.length < 2) return;
-
-                    let idKamar = row[0]?.replace(/["\r]/g, '').trim(); 
-                    let status = row[1]?.replace(/["\r]/g, '').trim();  
-
-                    if(!idKamar || !status) return;
-
-                    // Standarisasi ID (tipe_a -> tipe-a)
-                    let idKamarHTML = idKamar.replace(/_/g, '-').toLowerCase(); 
-                    
-                    laporan += `Excel: ${idKamar} | Status: ${status} | Cari ID: status-${idKamarHTML} -> `;
-
-                    const element = document.getElementById(`status-${idKamarHTML}`);
-
-                    if (element) {
-                        laporan += "KETEMU! ✅\n";
-                        adaUpdate = true;
-
-                        // Reset Warna
-                        element.classList.remove('bg-green-500/90', 'bg-red-600/90');
-
-                        // Cek Status (Bahasa Indonesia)
-                        if (status.toLowerCase() === 'full') {
-                            element.classList.add('bg-red-600/90');
-                            element.innerText = 'Penuh';
-                        } else {
-                            element.classList.add('bg-green-500/90');
-                            element.innerText = 'Tersedia';
-                        }
-                    } else {
-                        laporan += "TIDAK DITEMUKAN ❌\n";
-                    }
-                });
-
-                // TAMPILKAN POPUP HASIL
-                // alert(laporan); 
-                // console.log(laporan);
-            })
-            .catch(error => {
-                // alert("❌ ADA ERROR DI SCRIPT:\n" + error);
-                console.error(error);
-            });
-    }
-
-    // Jalankan Detektif
-    updateRoomStatus();
+    setInterval(updateRealTimeClock, 1000);
 });
