@@ -6,9 +6,9 @@ if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.match
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // ==========================================
-    // 1. UI & NAVIGATION (Supaya Layout Rapi & Tidak Rusak)
-    // ==========================================
+    // ----------------------------------------------------
+    // 1. UI & NAVIGATION (Bagian Tampilan)
+    // ----------------------------------------------------
     const navLinks = document.querySelectorAll('.nav-link');
     const pages = document.querySelectorAll('.page');
     const menuToggle = document.getElementById('menu-toggle');
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctaMobile = document.getElementById('cta-button-mobile');
     const header = document.getElementById('main-header');
     
-    // Dark Mode Toggle
+    // Dark Mode
     const themeToggleBtn = document.getElementById('theme-toggle');
     const iconSun = document.getElementById('icon-sun');
     const iconMoon = document.getElementById('icon-moon');
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Navbar Scroll Effect 
+    // Scroll Navbar
     let ticking = false;
     window.addEventListener('scroll', () => {
         if (!ticking) {
@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Scroll Reveal Animation (Ini yang bikin elemen muncul pelan-pelan)
+    // Scroll Animation
     const observerOptions = { threshold: 0.1, rootMargin: "0px 0px -50px 0px" };
     const revealOnScroll = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
         revealOnScroll.observe(el);
     });
 
-    // Navigation Logic 
+    // Navigation SPA
     function showPage(targetId) {
         pages.forEach(page => { page.classList.remove('active'); });
         window.scrollTo(0, 0);
@@ -117,17 +117,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    document.addEventListener('click', (e) => {
-        if (menuMobile && !menuMobile.classList.contains('hidden')) {
-            if (!menuMobile.contains(e.target) && !menuToggle.contains(e.target)) {
-                menuMobile.classList.add('hidden');
-            }
-        }
-    });
-
-    // ==========================================
+    // ----------------------------------------------------
     // 2. FORM WA & JAM
-    // ==========================================
+    // ----------------------------------------------------
     const submitButton = document.getElementById('submit-booking-form');
     const formError = document.getElementById('form-error');
     const roomSelect = document.getElementById('room_type');
@@ -159,6 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitButton.addEventListener('click', (e) => {
             e.preventDefault();
             formError.classList.add('hidden');
+            
             const name = document.getElementById('name').value.trim();
             const whatsapp = document.getElementById('whatsapp').value.trim();
             const roomType = document.getElementById('room_type').value;
@@ -206,34 +199,44 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(updateRealTimeClock, 1000);
     updateRealTimeClock();
 
-    // ==========================================
-    // 3. FITUR GOOGLE SHEET (JURUS PAMUNGKAS)
-    // ==========================================
+    // ----------------------------------------------------
+    // 3. FITUR GOOGLE SHEET (DEBUG MODE)
+    // ----------------------------------------------------
     const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTa1DSfok0DIkrJrlIBolUJPhhwgJeUbTYL9aennzzWlKYYGLp8uaOSfuyEhcUbmoAEQyDsnI3tDDbi/pub?output=csv'; 
 
     function updateRoomStatus() {
-        console.log("Mengambil data status kamar...");
-        
-        // Pakai timestamp (&t=...) biar tidak kena cache browser
+        // console.log("Memulai fetch data...");
         fetch(sheetURL + '&t=' + new Date().getTime())
-            .then(response => response.text())
+            .then(response => {
+                if (!response.ok) {
+                    alert("Gagal koneksi ke Google Sheet! Cek linknya.");
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
             .then(csvText => {
+                // Debug: Cek apa isi teks mentahnya
+                // alert("Data Diterima:\n" + csvText.substring(0, 100)); 
+
                 const rows = csvText.split('\n').map(row => row.split(','));
                 
                 rows.slice(1).forEach(row => {
                     if(row.length < 2) return;
 
-                    // Ambil Data
-                    let idKamar = row[0]?.trim(); 
-                    let status = row[1]?.trim();  
+                    // Bersihkan tanda kutip (") dan spasi kiri kanan
+                    let idKamar = row[0]?.replace(/["\r]/g, '').trim(); 
+                    let status = row[1]?.replace(/["\r]/g, '').trim();  
 
                     if(!idKamar || !status) return;
 
-                    // --- JURUS PAMUNGKAS ---
-                    // 1. Ubah _ jadi - (tipe_a -> tipe-a) supaya cocok sama HTML
+                    // STANDARISASI FORMAT
+                    // 1. Ubah _ jadi - (tipe_a -> tipe-a)
                     // 2. Ubah jadi huruf kecil semua
                     idKamar = idKamar.replace(/_/g, '-').toLowerCase(); 
                     
+                    // Cek ID yang dihasilkan
+                    // console.log(`Mencari ID HTML: status-${idKamar} | Status Excel: ${status}`);
+
                     const element = document.getElementById(`status-${idKamar}`);
 
                     if (element) {
@@ -248,11 +251,15 @@ document.addEventListener('DOMContentLoaded', () => {
                             element.classList.add('bg-green-500/90');
                             element.innerText = 'Available';
                         }
-                        console.log(`Update Sukses: ${idKamar} -> ${status}`);
+                    } else {
+                        console.warn(`ID HTML 'status-${idKamar}' tidak ditemukan di index.html`);
                     }
                 });
             })
-            .catch(error => console.error('Gagal mengambil data status:', error));
+            .catch(error => {
+                console.error('Error Fetch:', error);
+                // alert("Ada Error di Script: " + error.message);
+            });
     }
 
     // Jalankan
