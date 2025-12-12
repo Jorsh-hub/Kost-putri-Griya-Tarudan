@@ -6,7 +6,7 @@ if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.match
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. UI & NAVIGATION
+    // === BAGIAN UI & NAVIGASI ===
     const navLinks = document.querySelectorAll('.nav-link');
     const pages = document.querySelectorAll('.page');
     const menuToggle = document.getElementById('menu-toggle');
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctaMobile = document.getElementById('cta-button-mobile');
     const header = document.getElementById('main-header');
     
-    // Dark Mode
+    // Dark Mode Toggle
     const themeToggleBtn = document.getElementById('theme-toggle');
     const iconSun = document.getElementById('icon-sun');
     const iconMoon = document.getElementById('icon-moon');
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Scroll Navbar
+    // Navbar Scroll
     let ticking = false;
     window.addEventListener('scroll', () => {
         if (!ticking) {
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Scroll Animation
+    // Scroll Reveal
     const observerOptions = { threshold: 0.1, rootMargin: "0px 0px -50px 0px" };
     const revealOnScroll = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
@@ -74,11 +74,10 @@ document.addEventListener('DOMContentLoaded', () => {
         revealOnScroll.observe(el);
     });
 
-    // Navigation SPA
+    // Navigation Logic
     function showPage(targetId) {
         pages.forEach(page => { page.classList.remove('active'); });
         window.scrollTo(0, 0);
-        
         const targetPage = document.getElementById(targetId);
         if (targetPage) {
             targetPage.classList.add('active');
@@ -88,7 +87,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }, 50);
         }
-
         if (ctaDesktop && ctaMobile) {
             if (targetId === 'page-home') {
                 ctaDesktop.classList.add('hidden');
@@ -115,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 2. FORM WA & JAM
+    // === BAGIAN FORM WA & JAM ===
     const submitButton = document.getElementById('submit-booking-form');
     const formError = document.getElementById('form-error');
     const roomSelect = document.getElementById('room_type');
@@ -147,7 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
         submitButton.addEventListener('click', (e) => {
             e.preventDefault();
             formError.classList.add('hidden');
-            
             const name = document.getElementById('name').value.trim();
             const whatsapp = document.getElementById('whatsapp').value.trim();
             const roomType = document.getElementById('room_type').value;
@@ -188,27 +185,36 @@ document.addEventListener('DOMContentLoaded', () => {
         const mobileClock = document.getElementById('clock-mobile');
         const now = new Date();
         const timeString = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' WIB';
-        
         if (desktopClock) desktopClock.innerText = timeString;
         if (mobileClock) mobileClock.innerText = timeString;
     }
     setInterval(updateRealTimeClock, 1000);
     updateRealTimeClock();
 
-    // ----------------------------------------------------
-    // 3. FITUR GOOGLE SHEET (BAHASA INDONESIA)
-    // ----------------------------------------------------
+    // ==========================================
+    // 3. FITUR STATUS KAMAR (VERSI DETEKTIF / DEBUG)
+    // ==========================================
+    
     const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTa1DSfok0DIkrJrlIBolUJPhhwgJeUbTYL9aennzzWlKYYGLp8uaOSfuyEhcUbmoAEQyDsnI3tDDbi/pub?output=csv'; 
 
     function updateRoomStatus() {
+        // console.log("Detektif mulai bekerja..."); // Cek Console
+        
         fetch(sheetURL + '&t=' + new Date().getTime())
             .then(response => {
-                if (!response.ok) throw new Error('Gagal ambil data');
+                if (!response.ok) {
+                    alert("⚠️ GAGAL KONEKSI KE GOOGLE SHEET!\nCek internet atau linknya.");
+                    throw new Error('Network error');
+                }
                 return response.text();
             })
             .then(csvText => {
                 const rows = csvText.split('\n').map(row => row.split(','));
                 
+                // Variabel untuk menampung laporan
+                let laporan = "🔍 LAPORAN DETEKTIF:\n";
+                let adaUpdate = false;
+
                 rows.slice(1).forEach(row => {
                     if(row.length < 2) return;
 
@@ -218,33 +224,42 @@ document.addEventListener('DOMContentLoaded', () => {
                     if(!idKamar || !status) return;
 
                     // Standarisasi ID (tipe_a -> tipe-a)
-                    idKamar = idKamar.replace(/_/g, '-').toLowerCase(); 
+                    let idKamarHTML = idKamar.replace(/_/g, '-').toLowerCase(); 
                     
-                    const element = document.getElementById(`status-${idKamar}`);
+                    laporan += `Excel: ${idKamar} | Status: ${status} | Cari ID: status-${idKamarHTML} -> `;
+
+                    const element = document.getElementById(`status-${idKamarHTML}`);
 
                     if (element) {
+                        laporan += "KETEMU! ✅\n";
+                        adaUpdate = true;
+
                         // Reset Warna
                         element.classList.remove('bg-green-500/90', 'bg-red-600/90');
 
-                        // --- LOGIKA TERJEMAHAN ---
-                        // Di Excel tetap tulis: "Full" atau "Available"
-                        // Di Website muncul: "Penuh" atau "Tersedia"
-                        
+                        // Cek Status (Bahasa Indonesia)
                         if (status.toLowerCase() === 'full') {
-                            element.classList.add('bg-red-600/90'); // Merah
-                            element.innerText = 'Penuh';          // Teks Indonesia
+                            element.classList.add('bg-red-600/90');
+                            element.innerText = 'Penuh';
                         } else {
-                            element.classList.add('bg-green-500/90'); // Hijau
-                            element.innerText = 'Tersedia';       // Teks Indonesia
+                            element.classList.add('bg-green-500/90');
+                            element.innerText = 'Tersedia';
                         }
                     } else {
-                         // Debugging (bisa dihapus nanti)
-                         console.log(`ID 'status-${idKamar}' tidak ada di HTML. Cek penulisan di Sheet.`);
+                        laporan += "TIDAK DITEMUKAN ❌\n";
                     }
                 });
+
+                // TAMPILKAN POPUP HASIL
+                // alert(laporan); 
+                // console.log(laporan);
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => {
+                // alert("❌ ADA ERROR DI SCRIPT:\n" + error);
+                console.error(error);
+            });
     }
 
+    // Jalankan Detektif
     updateRoomStatus();
 });
