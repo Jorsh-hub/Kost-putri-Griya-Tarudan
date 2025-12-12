@@ -6,9 +6,7 @@ if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.match
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // ----------------------------------------------------
-    // 1. UI & NAVIGATION (Bagian Tampilan)
-    // ----------------------------------------------------
+    // 1. UI & NAVIGATION
     const navLinks = document.querySelectorAll('.nav-link');
     const pages = document.querySelectorAll('.page');
     const menuToggle = document.getElementById('menu-toggle');
@@ -117,9 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ----------------------------------------------------
     // 2. FORM WA & JAM
-    // ----------------------------------------------------
     const submitButton = document.getElementById('submit-booking-form');
     const formError = document.getElementById('form-error');
     const roomSelect = document.getElementById('room_type');
@@ -200,68 +196,55 @@ document.addEventListener('DOMContentLoaded', () => {
     updateRealTimeClock();
 
     // ----------------------------------------------------
-    // 3. FITUR GOOGLE SHEET (DEBUG MODE)
+    // 3. FITUR GOOGLE SHEET (BAHASA INDONESIA)
     // ----------------------------------------------------
     const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTa1DSfok0DIkrJrlIBolUJPhhwgJeUbTYL9aennzzWlKYYGLp8uaOSfuyEhcUbmoAEQyDsnI3tDDbi/pub?output=csv'; 
 
     function updateRoomStatus() {
-        // console.log("Memulai fetch data...");
         fetch(sheetURL + '&t=' + new Date().getTime())
             .then(response => {
-                if (!response.ok) {
-                    alert("Gagal koneksi ke Google Sheet! Cek linknya.");
-                    throw new Error('Network response was not ok');
-                }
+                if (!response.ok) throw new Error('Gagal ambil data');
                 return response.text();
             })
             .then(csvText => {
-                // Debug: Cek apa isi teks mentahnya
-                // alert("Data Diterima:\n" + csvText.substring(0, 100)); 
-
                 const rows = csvText.split('\n').map(row => row.split(','));
                 
                 rows.slice(1).forEach(row => {
                     if(row.length < 2) return;
 
-                    // Bersihkan tanda kutip (") dan spasi kiri kanan
                     let idKamar = row[0]?.replace(/["\r]/g, '').trim(); 
                     let status = row[1]?.replace(/["\r]/g, '').trim();  
 
                     if(!idKamar || !status) return;
 
-                    // STANDARISASI FORMAT
-                    // 1. Ubah _ jadi - (tipe_a -> tipe-a)
-                    // 2. Ubah jadi huruf kecil semua
+                    // Standarisasi ID (tipe_a -> tipe-a)
                     idKamar = idKamar.replace(/_/g, '-').toLowerCase(); 
                     
-                    // Cek ID yang dihasilkan
-                    // console.log(`Mencari ID HTML: status-${idKamar} | Status Excel: ${status}`);
-
                     const element = document.getElementById(`status-${idKamar}`);
 
                     if (element) {
                         // Reset Warna
                         element.classList.remove('bg-green-500/90', 'bg-red-600/90');
 
-                        // Cek Status (Huruf besar/kecil tidak masalah)
+                        // --- LOGIKA TERJEMAHAN ---
+                        // Di Excel tetap tulis: "Full" atau "Available"
+                        // Di Website muncul: "Penuh" atau "Tersedia"
+                        
                         if (status.toLowerCase() === 'full') {
-                            element.classList.add('bg-red-600/90');
-                            element.innerText = 'Sudah Penuh';
+                            element.classList.add('bg-red-600/90'); // Merah
+                            element.innerText = 'Penuh';          // Teks Indonesia
                         } else {
-                            element.classList.add('bg-green-500/90');
-                            element.innerText = 'Available';
+                            element.classList.add('bg-green-500/90'); // Hijau
+                            element.innerText = 'Tersedia';       // Teks Indonesia
                         }
                     } else {
-                        console.warn(`ID HTML 'status-${idKamar}' tidak ditemukan di index.html`);
+                         // Debugging (bisa dihapus nanti)
+                         console.log(`ID 'status-${idKamar}' tidak ada di HTML. Cek penulisan di Sheet.`);
                     }
                 });
             })
-            .catch(error => {
-                console.error('Error Fetch:', error);
-                // alert("Ada Error di Script: " + error.message);
-            });
+            .catch(error => console.error('Error:', error));
     }
 
-    // Jalankan
     updateRoomStatus();
 });
