@@ -107,6 +107,17 @@
          ::-webkit-scrollbar-thumb:hover {
             background-color: #be185d; /* pink-700 on hover */
         }
+        
+        /* Tambahan CSS untuk memastikan gambar slider di belakang text */
+        .hero-slide {
+            z-index: 0;
+        }
+        .hero-overlay {
+            z-index: 10;
+        }
+        .hero-content {
+            z-index: 20;
+        }
     </style>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -181,26 +192,35 @@
 
     <main>
 
-        <section id="page-home" class="page active">
-            <div class="relative h-[65vh] min-h-[550px] bg-cover bg-center overflow-hidden group" style="background-image: url('img/bagian_kos_depan.jpg');" role="img" aria-label="Tampak depan Griya Tarudan Aesthetic di Bantul">
-                <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/70 transition-opacity duration-700"></div>
-                <div class="container mx-auto max-w-6xl px-4 h-full flex flex-col justify-center items-center text-center relative z-10 py-20">
-                    <h1 class="text-4xl md:text-6xl lg:text-7xl font-brand text-white mb-8 reveal-in drop-shadow-lg leading-tight" style="transition-delay: 0.1s;">
-                        Welcome Home, Kak! 
-                    </h1>
-                    <p class="text-lg md:text-xl text-gray-100 max-w-2xl mb-12 reveal-in leading-relaxed font-light" style="transition-delay: 0.2s;">
-                        Hunian aesthetic, aman, dan super nyaman di Bantul. Cocok banget buat Kakak istirahat setelah seharian aktivitas.
-                    </p>
-                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-5 reveal-up" style="transition-delay: 0.3s;">
-                        <a href="#" class="nav-link bg-pink-600 text-white px-8 py-4 rounded-full font-medium text-lg btn-smooth shadow-lg shadow-pink-600/40 hover:bg-pink-700 transition-all" data-target="page-rooms">
-                            Cek Kamar Yuk
-                        </a>
-                        <a href="#" class="nav-link bg-white/10 backdrop-blur-md border-2 border-white/70 text-white px-8 py-4 rounded-full font-medium text-lg btn-smooth hover:bg-white hover:text-pink-600 transition-all" data-target="page-contact">
-                            Tanya Dulu
-                        </a>
-                    </div>
+        <section id="page-home" class="page active relative h-[65vh] min-h-[550px] overflow-hidden">
+            
+            <div id="hero-slides-container" class="absolute inset-0 w-full h-full">
+                <div class="hero-slide absolute inset-0 w-full h-full bg-cover bg-center transition-opacity duration-1000 ease-in-out opacity-100" style="background-image: url('img/bagian_kos_depan.jpg');" role="img" aria-label="Tampak depan Griya Tarudan"></div>
+                
+                <div class="hero-slide absolute inset-0 w-full h-full bg-cover bg-center transition-opacity duration-1000 ease-in-out opacity-0" style="background-image: url('img/lorong.jpg');" role="img" aria-label="Lorong kos yang bersih"></div>
+                
+                <div class="hero-slide absolute inset-0 w-full h-full bg-cover bg-center transition-opacity duration-1000 ease-in-out opacity-0" style="background-image: url('img/Fasad_Depan_Kos.jpg');" role="img" aria-label="Fasad bangunan kos"></div>
+            </div>
+
+            <div class="hero-overlay absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/70"></div>
+            
+            <div class="hero-content container mx-auto max-w-6xl px-4 h-full flex flex-col justify-center items-center text-center relative z-20 py-20">
+                <h1 class="text-4xl md:text-6xl lg:text-7xl font-brand text-white mb-8 reveal-in drop-shadow-lg leading-tight" style="transition-delay: 0.1s;">
+                    Welcome Home, Kak! 
+                </h1>
+                <p class="text-lg md:text-xl text-gray-100 max-w-2xl mb-12 reveal-in leading-relaxed font-light" style="transition-delay: 0.2s;">
+                    Hunian aesthetic, aman, dan super nyaman di Bantul. Cocok banget buat Kakak istirahat setelah seharian aktivitas.
+                </p>
+                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-5 reveal-up" style="transition-delay: 0.3s;">
+                    <a href="#" class="nav-link bg-pink-600 text-white px-8 py-4 rounded-full font-medium text-lg btn-smooth shadow-lg shadow-pink-600/40 hover:bg-pink-700 transition-all" data-target="page-rooms">
+                        Cek Kamar Yuk
+                    </a>
+                    <a href="#" class="nav-link bg-white/10 backdrop-blur-md border-2 border-white/70 text-white px-8 py-4 rounded-full font-medium text-lg btn-smooth hover:bg-white hover:text-pink-600 transition-all" data-target="page-contact">
+                        Tanya Dulu
+                    </a>
                 </div>
             </div>
+        </section>
             
             <div class="bg-white dark:bg-gray-900 py-24 transition-colors duration-300">
                 <div class="container mx-auto max-w-6xl px-4 grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
@@ -521,7 +541,7 @@
                         
                         <a href="https://wa.me/6282146152529?text=Halo%20Kak%20Admin%20Griya%20Tarudan,%20mau%20tanya%20info%20kost%20dong..." 
                            target="_blank" 
-                           class="w-full flex items-center justify-center bg-green-600 text-white px-6 py-3.5 rounded-xl font-bold text-lg btn-smooth shadow-lg hover:bg-green-700">
+                           class="w-full flex items-center justify-center bg-green-600 text-white px-6 py-3.5 rounded-xl font-bold text-lg btn-smooth shadow-lg hover:green-700">
                             <div class="bg-white rounded-full p-1 mr-3 flex items-center justify-center shadow-sm">
                                 <img src="img/logo_wa.png" class="w-8 h-8 object-contain" alt="WhatsApp">
                             </div>
@@ -661,5 +681,29 @@
     </a>
 
     <script src="script.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const slides = document.querySelectorAll('.hero-slide');
+            let currentSlide = 0;
+            const slideInterval = 5000; // Ganti slide setiap 5000ms (5 detik)
+
+            function nextSlide() {
+                // Sembunyikan slide saat ini
+                slides[currentSlide].classList.remove('opacity-100');
+                slides[currentSlide].classList.add('opacity-0');
+
+                // Pindah ke index berikutnya (looping)
+                currentSlide = (currentSlide + 1) % slides.length;
+
+                // Tampilkan slide baru
+                slides[currentSlide].classList.remove('opacity-0');
+                slides[currentSlide].classList.add('opacity-100');
+            }
+
+            // Jalankan fungsi nextSlide setiap interval waktu
+            setInterval(nextSlide, slideInterval);
+        });
+    </script>
 </body>
 </html>
