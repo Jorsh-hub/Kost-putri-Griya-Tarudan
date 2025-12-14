@@ -1,4 +1,4 @@
-// DARK MODE LOGIC 
+// --- 1. DARK MODE LOGIC (Jalan sebelum DOM siap agar tidak flickering) ---
 if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
     document.documentElement.classList.add('dark');
 } else {
@@ -6,7 +6,7 @@ if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.match
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // UI & Navigation References
+    // --- REFERENSI DOM ELEMENTS ---
     const navLinks = document.querySelectorAll('.nav-link');
     const pages = document.querySelectorAll('.page');
     const menuToggle = document.getElementById('menu-toggle');
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctaMobile = document.getElementById('cta-button-mobile');
     const header = document.getElementById('main-header');
     
-    // Dark Mode Toggle Handler
+    // --- 2. DARK MODE TOGGLE HANDLER ---
     const themeToggleBtn = document.getElementById('theme-toggle');
     const iconSun = document.getElementById('icon-sun');
     const iconMoon = document.getElementById('icon-moon');
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Navbar Scroll Effect 
+    // --- 3. NAVBAR SCROLL EFFECT (Transparan ke Putih/Gelap) ---
     let ticking = false;
     const handleScroll = () => {
         if (!ticking) {
@@ -60,13 +60,13 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     window.addEventListener('scroll', handleScroll);
 
-    // Scroll Reveal Animation 
+    // --- 4. SCROLL REVEAL ANIMATION (Muncul saat discroll) ---
     const observerOptions = { threshold: 0.1, rootMargin: "0px 0px -50px 0px" };
     const revealOnScroll = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('reveal-active');
-                observer.unobserve(entry.target);
+                observer.unobserve(entry.target); // Hanya animasi sekali
             }
         });
     }, observerOptions);
@@ -75,15 +75,20 @@ document.addEventListener('DOMContentLoaded', () => {
         revealOnScroll.observe(el);
     });
 
-    // Navigation Logic (Single Page Application Feel) 
+    // --- 5. SINGLE PAGE NAVIGATION LOGIC ---
     function showPage(targetId) {
+        // Sembunyikan semua halaman
         pages.forEach(page => { page.classList.remove('active'); });
+        
+        // Scroll ke atas
         window.scrollTo(0, 0);
         
+        // Tampilkan halaman target
         const targetPage = document.getElementById(targetId);
         if (targetPage) {
             targetPage.classList.add('active');
 
+            // Trigger animasi reveal ulang di halaman baru
             setTimeout(() => {
                 targetPage.querySelectorAll('.reveal-up, .reveal-in').forEach(el => {
                     revealOnScroll.observe(el);
@@ -91,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 50);
         }
 
+        // Atur visibilitas tombol CTA (sembunyi di Home, muncul di lain)
         if (ctaDesktop && ctaMobile) {
             if (targetId === 'page-home') {
                 ctaDesktop.classList.add('hidden');
@@ -101,11 +107,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        // Tutup menu mobile jika terbuka
         if (menuMobile && !menuMobile.classList.contains('hidden')) {
             menuMobile.classList.add('hidden');
         }
     }
 
+    // Event Listener untuk semua link navigasi
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
@@ -114,13 +122,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Mobile Menu Toggle 
+    // --- 6. MOBILE MENU TOGGLE ---
     if (menuToggle && menuMobile) {
         menuToggle.addEventListener('click', () => {
             menuMobile.classList.toggle('hidden');
         });
     }
 
+    // Tutup menu jika klik di luar
     document.addEventListener('click', (e) => {
         if (menuMobile && !menuMobile.classList.contains('hidden')) {
             if (!menuMobile.contains(e.target) && !menuToggle.contains(e.target)) {
@@ -129,18 +138,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Inisialisasi status tombol CTA
+    // Inisialisasi awal tombol CTA (sembunyi di home)
     if (ctaDesktop) ctaDesktop.classList.add('hidden');
     if (ctaMobile) ctaMobile.classList.add('hidden');
 
-    // Form Booking Logic (WhatsApp) 
+    // --- 7. FORM BOOKING LOGIC (WHATSAPP) ---
     const submitButton = document.getElementById('submit-booking-form');
     const formError = document.getElementById('form-error');
     const roomSelect = document.getElementById('room_type');
     const priceContainer = document.getElementById('price-container');
     const priceDisplay = document.getElementById('price-display');
     const dateInput = document.getElementById('checkin_date');
-    const adminWA = '6282146152529'; 
+    const adminWA = '6282146152529'; // Ganti dengan nomor WA asli (tanpa + atau 0 di depan)
 
     // Set tanggal minimal hari ini
     if (dateInput) {
@@ -176,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const checkinDate = document.getElementById('checkin_date').value;
             const message = document.getElementById('message').value.trim();
 
-            // Validasi 
+            // Validasi Sederhana
             if (!name) { showError('Form nya belom kakak isi nihh.'); return; }
             if (name.length < 3) { showError('Nama Kakak kependekan nih, minimal 3 huruf ya.'); return; }
 
@@ -222,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => submitButton.classList.remove('translate-x-1'), 100);
     }
 
-    // FITUR JAM REAL-TIME (WIB)
+    // --- 8. JAM REAL-TIME (WIB) ---
     function updateRealTimeClock() {
         const desktopClock = document.getElementById('clock-desktop');
         const mobileClock = document.getElementById('clock-mobile');
@@ -240,4 +249,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateRealTimeClock();
     setInterval(updateRealTimeClock, 1000);
+
+    // --- 9. HERO IMAGE SLIDER (OTOMATIS) ---
+    // Logika baru untuk menggilir gambar background hero
+    const heroSlides = document.querySelectorAll('.hero-slide');
+    let currentSlideIndex = 0;
+
+    // Cek apakah ada slide (mencegah error di halaman lain jika script digabung)
+    if (heroSlides.length > 0) {
+        setInterval(() => {
+            // 1. Sembunyikan slide saat ini (hapus opacity-100, tambah opacity-0)
+            heroSlides[currentSlideIndex].classList.remove('opacity-100');
+            heroSlides[currentSlideIndex].classList.add('opacity-0');
+
+            // 2. Pindah ke index berikutnya (looping balik ke 0 jika sudah habis)
+            currentSlideIndex = (currentSlideIndex + 1) % heroSlides.length;
+
+            // 3. Tampilkan slide berikutnya (hapus opacity-0, tambah opacity-100)
+            heroSlides[currentSlideIndex].classList.remove('opacity-0');
+            heroSlides[currentSlideIndex].classList.add('opacity-100');
+            
+        }, 5000); // Ganti gambar setiap 5000ms (5 detik)
+    }
 });
