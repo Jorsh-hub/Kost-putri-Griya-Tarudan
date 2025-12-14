@@ -1,4 +1,4 @@
-// --- 1. DARK MODE LOGIC (Jalan sebelum DOM siap agar tidak flickering) ---
+// DARK MODE LOGIC (Jalan sebelum DOM siap agar tidak flickering) 
 if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
     document.documentElement.classList.add('dark');
 } else {
@@ -6,7 +6,7 @@ if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.match
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // --- REFERENSI DOM ELEMENTS ---
+    // REFERENSI DOM ELEMENTS 
     const navLinks = document.querySelectorAll('.nav-link');
     const pages = document.querySelectorAll('.page');
     const menuToggle = document.getElementById('menu-toggle');
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctaMobile = document.getElementById('cta-button-mobile');
     const header = document.getElementById('main-header');
     
-    // --- 2. DARK MODE TOGGLE HANDLER ---
+    // DARK MODE TOGGLE HANDLER
     const themeToggleBtn = document.getElementById('theme-toggle');
     const iconSun = document.getElementById('icon-sun');
     const iconMoon = document.getElementById('icon-moon');
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 3. NAVBAR SCROLL EFFECT (Transparan ke Putih/Gelap) ---
+    // NAVBAR SCROLL EFFECT (Transparan ke Putih/Gelap) 
     let ticking = false;
     const handleScroll = () => {
         if (!ticking) {
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     window.addEventListener('scroll', handleScroll);
 
-    // --- 4. SCROLL REVEAL ANIMATION (Muncul saat discroll) ---
+    // SCROLL REVEAL ANIMATION (Muncul saat discroll) 
     const observerOptions = { threshold: 0.1, rootMargin: "0px 0px -50px 0px" };
     const revealOnScroll = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         revealOnScroll.observe(el);
     });
 
-    // --- 5. SINGLE PAGE NAVIGATION LOGIC ---
+    // SINGLE PAGE NAVIGATION LOGIC
     function showPage(targetId) {
         // Sembunyikan semua halaman
         pages.forEach(page => { page.classList.remove('active'); });
@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- 6. MOBILE MENU TOGGLE ---
+    // MOBILE MENU TOGGLE
     if (menuToggle && menuMobile) {
         menuToggle.addEventListener('click', () => {
             menuMobile.classList.toggle('hidden');
@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (ctaDesktop) ctaDesktop.classList.add('hidden');
     if (ctaMobile) ctaMobile.classList.add('hidden');
 
-    // --- 7. FORM BOOKING LOGIC (WHATSAPP) ---
+    // FORM BOOKING LOGIC (WHATSAPP) 
     const submitButton = document.getElementById('submit-booking-form');
     const formError = document.getElementById('form-error');
     const roomSelect = document.getElementById('room_type');
@@ -231,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => submitButton.classList.remove('translate-x-1'), 100);
     }
 
-    // --- 8. JAM REAL-TIME (WIB) ---
+    // JAM REAL-TIME (WIB) 
     function updateRealTimeClock() {
         const desktopClock = document.getElementById('clock-desktop');
         const mobileClock = document.getElementById('clock-mobile');
@@ -250,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateRealTimeClock();
     setInterval(updateRealTimeClock, 1000);
 
-    // --- 9. HERO IMAGE SLIDER (OTOMATIS) ---
+    // HERO IMAGE SLIDER (OTOMATIS)
     // Logika baru untuk menggilir gambar background hero
     const heroSlides = document.querySelectorAll('.hero-slide');
     let currentSlideIndex = 0;
@@ -272,3 +272,4 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 5000); // Ganti gambar setiap 5000ms (5 detik)
     }
 });
+
